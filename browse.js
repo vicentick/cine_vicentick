@@ -1,6 +1,7 @@
-/* Lógica compartida por corrientes.html y directores.html: agrupan sus
-   tarjetas por la década de la obra más antigua de cada corriente/director
-   y enlazan a catalogo.html con el filtro (o la ficha) ya aplicado. */
+/* Lógica compartida por corrientes.html y directores.html: primero una
+   pantalla de décadas, y al elegir una, sus corrientes/directores (los que
+   debutan en esa década, por la fecha de su obra más antigua). Cada tarjeta
+   enlaza a catalogo.html con el filtro (o la ficha) ya aplicado. */
 
 const IMG_BASE     = 'https://image.tmdb.org/t/p/w342';
 const PROFILE_BASE = 'https://image.tmdb.org/t/p/w185';
@@ -27,38 +28,66 @@ function earliestByKey(works, key) {
   return first;
 }
 
-function groupByDecade(entries, decadeOrder) {
-  const byDecade = new Map(decadeOrder.map((d) => [d, []]));
-  for (const [name, work] of entries) {
-    if (!byDecade.has(work.dec)) byDecade.set(work.dec, []);
-    byDecade.get(work.dec).push({ name, work });
-  }
-  for (const arr of byDecade.values()) arr.sort((a, b) => a.name.localeCompare(b.name, 'es'));
-  return byDecade;
+function countByDecade(entries, decadeOrder) {
+  const counts = new Map(decadeOrder.map((d) => [d, 0]));
+  for (const [, work] of entries) counts.set(work.dec, (counts.get(work.dec) || 0) + 1);
+  return counts;
 }
 
-function renderSections(wrap, decadeOrder, byDecade, makeItem) {
+function renderDecadeTiles(wrap, decadeOrder, counts, pageHref, noun) {
   wrap.innerHTML = '';
-  let any = false;
+  const grid = document.createElement('div');
+  grid.className = 'decade-grid';
   for (const dec of decadeOrder) {
-    const items = byDecade.get(dec) || [];
-    if (!items.length) continue;
-    any = true;
-    const h = document.createElement('h2');
-    h.className = 'browse-decade';
-    h.textContent = dec;
-    wrap.appendChild(h);
-    const grid = document.createElement('div');
-    grid.className = 'browse-grid';
-    for (const entry of items) grid.appendChild(makeItem(entry));
-    wrap.appendChild(grid);
+    const n = counts.get(dec) || 0;
+    if (!n) continue;
+    const a = document.createElement('a');
+    a.className = 'decade-tile';
+    a.href = `${pageHref}?decada=${encodeURIComponent(dec)}`;
+    const label = document.createElement('span');
+    label.className = 'decade-tile-label';
+    label.textContent = dec;
+    const sub = document.createElement('span');
+    sub.className = 'decade-tile-sub';
+    sub.textContent = `${n} ${n === 1 ? noun.one : noun.many}`;
+    a.append(label, sub);
+    grid.appendChild(a);
   }
-  if (!any) {
+  wrap.appendChild(grid);
+}
+
+function renderFlatGrid(wrap, entries, makeItem) {
+  wrap.innerHTML = '';
+  if (!entries.length) {
     const p = document.createElement('p');
     p.className = 'browse-empty';
     p.textContent = 'No hay nada que mostrar.';
     wrap.appendChild(p);
+    return;
   }
+  const grid = document.createElement('div');
+  grid.className = 'browse-grid';
+  for (const entry of entries) grid.appendChild(makeItem(entry));
+  wrap.appendChild(grid);
+}
+
+/* Cuando ya hay una década elegida, el botón de inicio se convierte en
+   "volver a la lista de décadas" y el título recuerda cuál es. */
+function setupTopbar(decada, pageHref, baseTitle) {
+  const h1 = document.getElementById('page-title');
+  const homeBtn = document.getElementById('home-btn');
+  if (!decada) {
+    h1.textContent = baseTitle;
+    return;
+  }
+  h1.textContent = `${baseTitle} · ${decada}`;
+  const back = document.createElement('a');
+  back.className = 'icon-btn';
+  back.href = pageHref;
+  back.title = 'Volver a las décadas';
+  back.setAttribute('aria-label', 'Volver a las décadas');
+  back.textContent = '◀';
+  homeBtn.insertAdjacentElement('afterend', back);
 }
 
 function posterItem(name, work, href) {
@@ -127,24 +156,48 @@ function personItem(name, work, href, photoPath) {
 
 async function initCorrientes() {
   const wrap = document.getElementById('browse-wrap');
+  const decada = new URLSearchParams(location.search).get('decada');
+  setupTopbar(decada, 'corrientes.html', 'Corrientes');
+
   const data = await (await fetch('data.json')).json();
   const works = data.works;
   const decadeOrder = decadeOrderOf(works);
-  const byDecade = groupByDecade(earliestByKey(works, 'm'), decadeOrder);
-  renderSections(wrap, decadeOrder, byDecade, ({ name, work }) =>
+  const entries = earliestByKey(works, 'm');
+
+  if (!decada) {
+    renderDecadeTiles(wrap, decadeOrder, countByDecade(entries, decadeOrder), 'corrientes.html',
+      { one: 'corriente', many: 'corrientes' });
+    return;
+  }
+  const items = [...entries].filter(([, w]) => w.dec === decada)
+    .sort((a, b) => a[0].localeCompare(b[0], 'es'))
+    .map(([name, work]) => ({ name, work }));
+  renderFlatGrid(wrap, items, ({ name, work }) =>
     posterItem(name, work, `catalogo.html?corriente=${encodeURIComponent(name)}`));
 }
 
 async function initDirectores() {
   const wrap = document.getElementById('browse-wrap');
+  const decada = new URLSearchParams(location.search).get('decada');
+  setupTopbar(decada, 'directores.html', 'Directores');
+
   const [data, photos] = await Promise.all([
     fetch('data.json').then((r) => r.json()),
     fetch('directors.json').then((r) => (r.ok ? r.json() : {})).catch(() => ({})),
   ]);
   const works = data.works;
   const decadeOrder = decadeOrderOf(works);
-  const byDecade = groupByDecade(earliestByKey(works, 'd'), decadeOrder);
-  renderSections(wrap, decadeOrder, byDecade, ({ name, work }) =>
+  const entries = earliestByKey(works, 'd');
+
+  if (!decada) {
+    renderDecadeTiles(wrap, decadeOrder, countByDecade(entries, decadeOrder), 'directores.html',
+      { one: 'director', many: 'directores' });
+    return;
+  }
+  const items = [...entries].filter(([, w]) => w.dec === decada)
+    .sort((a, b) => a[0].localeCompare(b[0], 'es'))
+    .map(([name, work]) => ({ name, work }));
+  renderFlatGrid(wrap, items, ({ name, work }) =>
     personItem(name, work, `catalogo.html?director=${encodeURIComponent(name)}`, photos[name]));
 }
 
