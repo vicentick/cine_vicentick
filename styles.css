@@ -249,11 +249,10 @@ dd.premios{color:var(--accent)}
    sobrante simplemente se puede desplazar en vez de quedar cortado y
    fuera de alcance por debajo de la pantalla. */
 .home-body{display:flex; flex-direction:column; min-height:100vh; min-height:100dvh}
-.home-logo{
-  flex:0 0 auto; display:block; margin:0 auto; width:auto; height:auto;
-  max-width:44vw; max-height:22vh;
-  padding-top:env(safe-area-inset-top,0px);
-  object-fit:contain;
+.home-title{
+  flex:0 0 auto; text-align:center;
+  margin:0; padding:calc(env(safe-area-inset-top,0px) + 16px) 16px 10px;
+  font-size:1.25rem; font-weight:700; letter-spacing:.2px;
 }
 .home-wrap{
   flex:1; min-height:480px; display:flex; flex-direction:column; gap:12px;
