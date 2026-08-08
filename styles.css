@@ -117,6 +117,17 @@ main{padding:10px 12px 0}
 .badge-cannes{background:radial-gradient(circle at 35% 30%, #ff8a80, #c62828 70%); border-color:#ffd3cf}
 .badge-globo{background:radial-gradient(circle at 35% 30%, #90caf9, #1565c0 70%); border-color:#cfe8ff}
 
+/* logos de plataforma: en la tarjeta, esquina inferior derecha del póster */
+.card .providers{
+  position:absolute; right:6px; bottom:6px; z-index:1;
+  display:flex; flex-wrap:wrap; justify-content:flex-end; gap:4px;
+  max-width:calc(100% - 12px); pointer-events:none;
+}
+.card .provider-icon{
+  width:22px; height:22px; border-radius:6px; object-fit:cover; display:block;
+  border:1px solid rgba(255,255,255,.4); box-shadow:0 1px 4px rgba(0,0,0,.6);
+}
+
 /* nombre del director, clicable dentro de tarjeta y ficha */
 .dir-link{
   cursor:pointer; font-weight:700; color:var(--fg);
@@ -177,6 +188,17 @@ main{padding:10px 12px 0}
   font-size:.7rem; color:var(--fg-dim);
 }
 .synopsis{margin:0 0 16px; font-size:.88rem; line-height:1.5; color:var(--fg)}
+
+.watch-row{display:flex; align-items:center; flex-wrap:wrap; gap:10px; margin:0 0 16px}
+.watch-label{
+  font-size:.74rem; font-weight:700; text-transform:uppercase; letter-spacing:.4px;
+  color:var(--fg-faint);
+}
+.watch-row .providers{display:flex; flex-wrap:wrap; gap:8px}
+.watch-row .provider-icon{
+  width:34px; height:34px; border-radius:9px; object-fit:cover; display:block;
+  border:1px solid var(--line);
+}
 
 dl{margin:0; display:grid; grid-template-columns:auto 1fr; gap:8px 14px; font-size:.86rem}
 dt{color:var(--fg-faint); font-size:.74rem; text-transform:uppercase; letter-spacing:.4px;

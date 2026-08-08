@@ -173,7 +173,8 @@ async function initCorrientes() {
     .sort((a, b) => a[0].localeCompare(b[0], 'es'))
     .map(([name, work]) => ({ name, work }));
   renderFlatGrid(wrap, items, ({ name, work }) =>
-    posterItem(name, work, `catalogo.html?corriente=${encodeURIComponent(name)}`));
+    posterItem(name, work,
+      `catalogo.html?corriente=${encodeURIComponent(name)}&decada=${encodeURIComponent(decada)}`));
 }
 
 async function initDirectores() {

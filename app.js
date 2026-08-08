@@ -66,9 +66,14 @@ function parseImdb(sc) {
 }
 
 /* ---------------- carga ---------------- */
+let PROVIDERS = {};
 async function init() {
-  const res = await fetch('data.json');
+  const [res, provRes] = await Promise.all([
+    fetch('data.json'),
+    fetch('providers.json').catch(() => null),
+  ]);
   const data = await res.json();
+  PROVIDERS = provRes && provRes.ok ? await provRes.json() : {};
   SECTIONS = data.sections;
   WORKS = data.works.map((w) => {
     const aw = parseAwards(w.p);
@@ -97,12 +102,20 @@ async function init() {
 function applyDeepLink() {
   const params = new URLSearchParams(location.search);
   const corriente = params.get('corriente');
+  const decada = params.get('decada');
   const director = params.get('director');
 
   if (corriente) {
     state.section = 'ALL';
     chipsEl.querySelectorAll('.chip[data-key]').forEach((c) =>
       c.setAttribute('aria-pressed', String(c.dataset.key === 'ALL')));
+    // si se llega desde una corriente ya filtrada por década en
+    // corrientes.html, esa década viaja también en la URL: sin esto se
+    // veían obras de la misma corriente pero de décadas distintas.
+    if (decada && WORKS.some((w) => w.dec === decada)) {
+      state.decade = decada;
+      decadeEl.value = decada;
+    }
     buildMovements();
     if (WORKS.some((w) => w.m === corriente)) {
       state.movement = corriente;
@@ -302,6 +315,30 @@ function awardBadges(w) {
   return wrap;
 }
 
+/* Logos de plataforma: vienen de TMDb (datos de JustWatch). w92 basta para
+   los iconos pequeños de tarjeta y para la fila de la ficha. */
+const PROVIDER_LOGO_BASE = 'https://image.tmdb.org/t/p/w92';
+
+function providerIcons(w) {
+  const ids = w.wp || [];
+  const wrap = document.createElement('div');
+  wrap.className = 'providers';
+  for (const id of ids) {
+    const info = PROVIDERS[id];
+    if (!info || !info.l) continue;
+    const img = document.createElement('img');
+    img.className = 'provider-icon';
+    img.crossOrigin = 'anonymous';
+    img.src = PROVIDER_LOGO_BASE + info.l;
+    img.alt = info.n;
+    img.title = info.n;
+    img.loading = 'lazy';
+    img.decoding = 'async';
+    wrap.appendChild(img);
+  }
+  return wrap.childElementCount ? wrap : null;
+}
+
 /* El nombre del director es clicable (abre su filmografía) sin disparar el
    click de la tarjeta/ficha que lo envuelve. */
 function makeDirectorLink(name) {
@@ -349,6 +386,8 @@ function makeCard(w) {
 
   const badges = awardBadges(w);
   if (badges) card.appendChild(badges);
+  const providers = providerIcons(w);
+  if (providers) card.appendChild(providers);
 
   const h = document.createElement('h3');
   h.textContent = w.t;
@@ -433,6 +472,17 @@ function openSheet(w) {
     syn.className = 'synopsis';
     syn.textContent = w.ov;
     parts.push(syn);
+  }
+
+  const watch = document.createElement('div');
+  watch.className = 'watch-row';
+  const watchLabel = document.createElement('span');
+  watchLabel.className = 'watch-label';
+  watchLabel.textContent = 'Disponible en';
+  const watchIcons = providerIcons(w);
+  if (watchIcons) {
+    watch.append(watchLabel, watchIcons);
+    parts.push(watch);
   }
 
   const dl = document.createElement('dl');
