@@ -1,6 +1,6 @@
 {
-  "name": "Super DB de Cine",
-  "short_name": "Cine",
+  "name": "Cinick",
+  "short_name": "Cinick",
   "description": "Catálogo personal de películas, animación, series y documentales.",
   "start_url": "./",
   "scope": "./",

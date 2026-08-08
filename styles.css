@@ -24,6 +24,7 @@ body{
   padding:calc(env(safe-area-inset-top,0px) + 10px) 12px 8px;
 }
 .topbar-row{display:flex; align-items:center; gap:8px}
+.topbar-logo{width:28px; height:28px; border-radius:7px; flex:0 0 auto; display:block}
 h1{
   margin:0; font-size:1.05rem; font-weight:700; letter-spacing:.2px; flex:1;
 }
@@ -248,10 +249,11 @@ dd.premios{color:var(--accent)}
    sobrante simplemente se puede desplazar en vez de quedar cortado y
    fuera de alcance por debajo de la pantalla. */
 .home-body{display:flex; flex-direction:column; min-height:100vh; min-height:100dvh}
-.home-title{
-  flex:0 0 auto; text-align:center;
-  margin:0; padding:calc(env(safe-area-inset-top,0px) + 16px) 16px 10px;
-  font-size:1.25rem; font-weight:700; letter-spacing:.2px;
+.home-logo{
+  flex:0 0 auto; display:block; margin:0 auto; width:auto; height:auto;
+  max-width:44vw; max-height:22vh;
+  padding-top:env(safe-area-inset-top,0px);
+  object-fit:contain;
 }
 .home-wrap{
   flex:1; min-height:480px; display:flex; flex-direction:column; gap:12px;

@@ -1,4 +1,4 @@
-/* Super DB de Cine — PWA sin dependencias. */
+/* Cinick — PWA sin dependencias. */
 
 const $ = (sel) => document.querySelector(sel);
 

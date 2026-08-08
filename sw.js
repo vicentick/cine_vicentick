@@ -1,7 +1,7 @@
 /* Service worker: el armazón y los datos se precargan; los pósters se
    cachean según se van viendo (o de golpe con el botón de la app). */
 
-const SHELL_CACHE  = 'cine-shell-v14';
+const SHELL_CACHE  = 'cine-shell-v15';
 const POSTER_CACHE = 'cine-posters-v2';
 
 const SHELL = [
@@ -19,6 +19,9 @@ const SHELL = [
   'manifest.json',
   'icons/icon-192.png',
   'icons/icon-512.png',
+  'icons/apple-touch-icon.png',
+  'icons/favicon-32.png',
+  'icons/logo.png',
   'icons/tmdb.svg',      // la atribución debe verse también sin conexión
 ];
 

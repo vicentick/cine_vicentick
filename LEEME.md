@@ -1,28 +1,36 @@
-# Super DB de Cine — app para el móvil (PWA)
+# Cinick — app para el móvil (PWA)
 
 Catálogo de 576 obras, instalable en Android y iPhone. Funciona sin conexión.
 No necesita tiendas de aplicaciones ni cuotas.
 
 **Los pósters no están aquí dentro.** La app guarda la ruta de cada uno en TMDb
 y se los pide a su CDN al mostrarlos, que es el uso que TMDb contempla. Así no
-se rehospeda material ajeno y todo esto pesa 274 KB.
+se rehospeda material ajeno.
 
 ## Qué hay aquí
 
 | Fichero | Para qué |
 |---|---|
-| `index.html`, `styles.css`, `app.js` | la app |
-| `data.json` | las 576 obras + la ruta de su póster en TMDb (generado) |
-| `icons/` | iconos de instalación (generado) |
+| `index.html` | pantalla de inicio (Búsqueda general / Corrientes / Directores) |
+| `catalogo.html`, `app.js` | el catálogo completo: buscar, filtrar, fichas |
+| `corrientes.html`, `directores.html`, `browse.js` | exploración por década |
+| `styles.css` | estilos de toda la app |
+| `data.json` | las 576 obras + póster, sinopsis y plataformas de streaming (generado) |
+| `directors.json` | fotos de director (generado) |
+| `providers.json` | nombre y logo de cada plataforma de streaming (generado) |
+| `icons/` | iconos de instalación y logo (generado desde `files/icons_src/`) |
 | `manifest.json` | nombre, colores e iconos |
 | `sw.js` | service worker: funcionamiento sin conexión |
 
 Lo *generado* sale de los scripts de `..\files\`:
 
 ```
-python build_urls.py    # averigua la ruta TMDb de cada póster -> _cache/urls.json
-python build_app.py     # escribe data.json
-python build_icons.py   # escribe icons/
+python build_urls.py         # averigua la ruta TMDb de cada póster -> _cache/urls.json
+python build_synopsis.py     # sinopsis de cada obra -> _cache/synopsis.json
+python build_directors.py    # fotos de director -> app/directors.json
+python build_watch.py        # plataformas de streaming -> app/providers.json
+python build_app.py          # junta todo en data.json
+python build_brand_icons.py  # iconos de la app a partir de files/icons_src/cinick_logo.png
 ```
 
 `build_urls.py` es incremental: solo consulta las obras que no conozca. Si
