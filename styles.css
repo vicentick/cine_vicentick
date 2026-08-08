@@ -219,15 +219,20 @@ dd.premios{color:var(--accent)}
 .attrib p{margin:8px 0 0}
 .tmdb-logo{width:130px; height:auto; opacity:.85}
 
-/* ---------- pantalla de inicio ---------- */
-.home-body{display:flex; flex-direction:column; height:100dvh; overflow:hidden}
+/* ---------- pantalla de inicio ----------
+   min-height (no height fija) y sin overflow:hidden: si el navegador
+   calcula mal el 100dvh al volver de otra página (el tamaño real del
+   visor cambia mientras aparece/desaparece la barra de direcciones), el
+   sobrante simplemente se puede desplazar en vez de quedar cortado y
+   fuera de alcance por debajo de la pantalla. */
+.home-body{display:flex; flex-direction:column; min-height:100vh; min-height:100dvh}
 .home-title{
   flex:0 0 auto; text-align:center;
   margin:0; padding:calc(env(safe-area-inset-top,0px) + 16px) 16px 10px;
   font-size:1.25rem; font-weight:700; letter-spacing:.2px;
 }
 .home-wrap{
-  flex:1; min-height:0; display:flex; flex-direction:column; gap:12px;
+  flex:1; min-height:480px; display:flex; flex-direction:column; gap:12px;
   max-width:900px; width:100%; margin:0 auto;
   padding:0 12px calc(12px + var(--safe-b));
 }
