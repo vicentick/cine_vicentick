@@ -7,6 +7,8 @@ const searchEl   = $('#search');
 const clearEl    = $('#btn-clear');
 const chipsEl    = $('#chips-section');
 const decadeEl   = $('#filter-decade');
+const movementEl = $('#filter-movement');
+const genreEl    = $('#filter-genre');
 const sortEl     = $('#sort');
 const countEl    = $('#count');
 const emptyEl    = $('#empty');
@@ -21,11 +23,26 @@ const posterURL = (path) => IMG_BASE + path;
 
 let WORKS = [];
 let SECTIONS = {};
-const state = { q: '', section: 'ALL', decade: 'ALL', sort: 'year-asc' };
+const state = { q: '', section: 'ALL', decade: 'ALL', movement: 'ALL', genre: 'ALL', sort: 'year-asc' };
 
 /* Búsqueda insensible a acentos y mayúsculas. */
 const norm = (s) => (s || '')
   .normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
+/* ---------------- premios ----------------
+   El campo "p" es texto libre ("Oscar Mejor Película 1994", "Palma de Oro
+   Cannes 2019; Oscar Mejor Película"...). "Nominada" es el único patrón del
+   dataset que marca una candidatura sin victoria (marco plata); cualquier
+   otra mención de "Oscar" se trata como victoria (marco dorado). */
+function parseAwards(p) {
+  const t = p || '';
+  const oscarNom  = /^nominad/i.test(t.trim());
+  const oscarWin  = /oscar/i.test(t) && !oscarNom;
+  const palmaOro  = /palma de oro/i.test(t);
+  const cannesWin = /cannes/i.test(t) && !palmaOro;
+  const globoOro  = /globo de oro/i.test(t);
+  return { oscarWin, oscarNom, palmaOro, cannesWin, globoOro };
+}
 
 /* ---------------- carga ---------------- */
 async function init() {
@@ -37,10 +54,13 @@ async function init() {
     _hay: norm([w.t, w.d, w.c, w.g, w.m, w.y].join(' ')),
     _t: norm(w.t),
     _d: norm(w.d),
+    _aw: parseAwards(w.p),
   }));
 
   buildChips();
   buildDecades();
+  buildGenres();
+  buildMovements();
   bind();
   render();
 }
@@ -70,6 +90,24 @@ function buildDecades() {
     decs.map((d) => `<option value="${d}">${d}</option>`).join('');
 }
 
+/* Las corrientes dependen de la década elegida: sin década, todas las que
+   haya en el catálogo; con una elegida, sólo las que aparecen en esa década. */
+function buildMovements() {
+  const pool = state.decade === 'ALL' ? WORKS : WORKS.filter((w) => w.dec === state.decade);
+  const movs = [...new Set(pool.map((w) => w.m).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
+  const prev = state.movement;
+  movementEl.innerHTML = '<option value="ALL">Todas las corrientes</option>' +
+    movs.map((m) => `<option value="${m}">${m}</option>`).join('');
+  state.movement = movs.includes(prev) ? prev : 'ALL';
+  movementEl.value = state.movement;
+}
+
+function buildGenres() {
+  const genres = [...new Set(WORKS.map((w) => w.g).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
+  genreEl.innerHTML = '<option value="ALL">Todos los géneros</option>' +
+    genres.map((g) => `<option value="${g}">${g}</option>`).join('');
+}
+
 function bind() {
   let t;
   searchEl.addEventListener('input', () => {
@@ -80,7 +118,13 @@ function bind() {
   clearEl.addEventListener('click', () => {
     searchEl.value = ''; clearEl.hidden = true; state.q = ''; render(); searchEl.focus();
   });
-  decadeEl.addEventListener('change', () => { state.decade = decadeEl.value; render(); });
+  decadeEl.addEventListener('change', () => {
+    state.decade = decadeEl.value;
+    buildMovements();
+    render();
+  });
+  movementEl.addEventListener('change', () => { state.movement = movementEl.value; render(); });
+  genreEl.addEventListener('change', () => { state.genre = genreEl.value; render(); });
   sortEl.addEventListener('change', () => { state.sort = sortEl.value; render(); });
 
   $('#btn-random').addEventListener('click', () => {
@@ -96,10 +140,12 @@ function bind() {
 
 /* ---------------- filtrado ---------------- */
 function filtered() {
-  const { q, section, decade, sort } = state;
+  const { q, section, decade, movement, genre, sort } = state;
   let out = WORKS.filter((w) =>
     (section === 'ALL' || w.s === section) &&
     (decade === 'ALL' || w.dec === decade) &&
+    (movement === 'ALL' || w.m === movement) &&
+    (genre === 'ALL' || w.g === genre) &&
     (!q || w._hay.includes(q)));
 
   const by = {
@@ -148,10 +194,50 @@ function rellenar() {
 window.addEventListener('scroll', alScroll, { passive: true });
 window.addEventListener('resize', alScroll, { passive: true });
 
+/* Iconitos de premio: pequeños, no interactivos (pointer-events:none en CSS),
+   sólo informativos encima del póster. */
+const AWARD_ICONS = [
+  ['oscarWin',  '🏆', 'Ganadora de un Oscar'],
+  ['palmaOro',  '🌴', 'Palma de Oro (Cannes)'],
+  ['cannesWin', '🎬', 'Premio del Festival de Cannes'],
+  ['globoOro',  '🌐', 'Globo de Oro'],
+];
+
+function awardBadges(w) {
+  const aw = w._aw || {};
+  const active = AWARD_ICONS.filter(([key]) => aw[key]);
+  if (!active.length) return null;
+  const wrap = document.createElement('div');
+  wrap.className = 'badges';
+  for (const [, icon, label] of active) {
+    const b = document.createElement('span');
+    b.className = 'badge';
+    b.textContent = icon;
+    b.title = label;
+    wrap.appendChild(b);
+  }
+  return wrap;
+}
+
+/* El nombre del director es clicable (abre su filmografía) sin disparar el
+   click de la tarjeta/ficha que lo envuelve. */
+function makeDirectorLink(name) {
+  const a = document.createElement('span');
+  a.className = 'dir-link';
+  a.textContent = name;
+  a.addEventListener('click', (e) => {
+    e.stopPropagation();
+    openDirectorSheet(name);
+  });
+  return a;
+}
+
 function makeCard(w) {
   const card = document.createElement('button');
   card.className = 'card';
   card.type = 'button';
+  if (w._aw.oscarWin) card.classList.add('frame-gold');
+  else if (w._aw.oscarNom) card.classList.add('frame-silver');
 
   if (w.img) {
     const img = document.createElement('img');
@@ -178,10 +264,15 @@ function makeCard(w) {
     card.appendChild(ph);
   }
 
+  const badges = awardBadges(w);
+  if (badges) card.appendChild(badges);
+
   const h = document.createElement('h3');
   h.textContent = w.t;
   const p = document.createElement('p');
-  p.textContent = `${w.d || '—'} · ${w.y}`;
+  if (w.d) p.appendChild(makeDirectorLink(w.d));
+  else p.append('—');
+  p.append(` · ${w.y}`);
   card.append(h, p);
   card.addEventListener('click', () => openSheet(w));
   return card;
@@ -234,7 +325,9 @@ function openSheet(w) {
   h2.textContent = w.t;
   const meta = document.createElement('p');
   meta.className = 'meta';
-  meta.textContent = `${w.d || '—'} · ${w.y}`;
+  if (w.d) meta.appendChild(makeDirectorLink(w.d));
+  else meta.append('—');
+  meta.append(` · ${w.y}`);
   const tag = document.createElement('span');
   tag.className = 'tag';
   tag.textContent = w.dec;
@@ -255,7 +348,54 @@ function openSheet(w) {
 
   inner.append(hero, dl);
   sheetBody.replaceChildren(inner);
-  sheet.showModal();
+  if (!sheet.open) sheet.showModal();
+}
+
+/* ---------------- filmografía de director ---------------- */
+function openDirectorSheet(director) {
+  const films = WORKS.filter((w) => w.d === director).sort((a, b) => a.y - b.y);
+
+  const inner = document.createElement('div');
+  inner.className = 'sheet-inner';
+
+  const h2 = document.createElement('h2');
+  h2.className = 'director-title';
+  h2.textContent = director;
+  const count = document.createElement('p');
+  count.className = 'meta';
+  count.textContent = `${films.length} ${films.length === 1 ? 'obra' : 'obras'} en el catálogo`;
+
+  const list = document.createElement('div');
+  list.className = 'director-grid';
+  for (const w of films) {
+    const item = document.createElement('button');
+    item.type = 'button';
+    item.className = 'director-item';
+    if (w.img) {
+      const im = document.createElement('img');
+      im.crossOrigin = 'anonymous';
+      im.src = posterURL(w.img);
+      im.alt = `Póster de ${w.t}`;
+      im.loading = 'lazy';
+      item.appendChild(im);
+    } else {
+      const ph = document.createElement('div');
+      ph.className = 'ph';
+      ph.textContent = 'sin póster';
+      item.appendChild(ph);
+    }
+    const h = document.createElement('h4');
+    h.textContent = w.t;
+    const p = document.createElement('p');
+    p.textContent = w.y;
+    item.append(h, p);
+    item.addEventListener('click', () => openSheet(w));
+    list.appendChild(item);
+  }
+
+  inner.append(h2, count, list);
+  sheetBody.replaceChildren(inner);
+  if (!sheet.open) sheet.showModal();
 }
 
 /* ---------------- offline ---------------- */

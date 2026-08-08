@@ -74,6 +74,7 @@ main{padding:10px 12px 0}
   grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
 }
 .card{
+  position:relative;
   background:none; border:0; padding:0; margin:0;
   color:inherit; text-align:left; cursor:pointer;
   display:flex; flex-direction:column;
@@ -92,14 +93,32 @@ main{padding:10px 12px 0}
 }
 .card p{margin:2px 2px 0; font-size:.72rem; color:var(--fg-faint)}
 
+/* marco de premio Oscar: dorado para ganadoras, plateado para finalistas */
+.card.frame-gold img, .card.frame-gold .ph{border:2px solid #d4af37; box-shadow:0 0 0 1px rgba(212,175,55,.35)}
+.card.frame-silver img, .card.frame-silver .ph{border:2px solid #c0c0c8; box-shadow:0 0 0 1px rgba(192,192,200,.3)}
+
+/* iconitos de premio, sólo informativos */
+.badges{
+  position:absolute; top:6px; left:6px; z-index:1;
+  display:flex; gap:3px; pointer-events:none;
+}
+.badge{
+  font-size:.62rem; line-height:1; padding:3px 4px; border-radius:6px;
+  background:rgba(14,15,19,.72); backdrop-filter:blur(2px);
+}
+
+/* nombre del director, clicable dentro de tarjeta y ficha */
+.dir-link{cursor:pointer; text-decoration:underline; text-decoration-color:transparent; transition:text-decoration-color .12s ease}
+.dir-link:hover, .dir-link:focus{text-decoration-color:currentColor}
+
 .empty{text-align:center; color:var(--fg-faint); padding:40px 20px}
 
 /* ---------- ficha ---------- */
 .sheet{
-  border:0; padding:0; width:min(560px,100%); max-height:88vh;
+  border:0; padding:0; width:min(560px,92%); max-height:85vh;
   background:var(--bg-elev); color:var(--fg);
-  border-radius:18px 18px 0 0; margin:auto auto 0;
-  overflow:auto; position:fixed; inset:auto 0 0 0;
+  border-radius:18px; margin:auto;
+  overflow:auto; position:fixed; inset:0;
 }
 .sheet::backdrop{background:rgba(0,0,0,.65)}
 .sheet-close{
@@ -127,6 +146,29 @@ dt{color:var(--fg-faint); font-size:.74rem; text-transform:uppercase; letter-spa
    padding-top:2px}
 dd{margin:0}
 dd.premios{color:var(--accent)}
+
+/* ---------- filmografía de director ---------- */
+.director-title{margin:0 40px 2px 0; font-size:1.1rem; line-height:1.25}
+.director-grid{
+  display:grid; gap:10px; margin-top:14px;
+  grid-template-columns:repeat(auto-fill,minmax(96px,1fr));
+}
+.director-item{
+  background:none; border:0; padding:0; margin:0;
+  color:inherit; text-align:left; cursor:pointer;
+  display:flex; flex-direction:column;
+}
+.director-item img, .director-item .ph{
+  width:100%; aspect-ratio:2/3; object-fit:cover;
+  border-radius:10px; background:var(--bg-elev2);
+  border:1px solid var(--line); display:block;
+}
+.director-item .ph{display:grid; place-items:center; color:var(--fg-faint); font-size:.68rem}
+.director-item h4{
+  margin:5px 1px 0; font-size:.74rem; font-weight:600; line-height:1.2;
+  display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+}
+.director-item p{margin:1px 1px 0; font-size:.68rem; color:var(--fg-faint)}
 
 /* ---------- pie ---------- */
 .foot{padding:22px 14px calc(28px + var(--safe-b)); text-align:center}
