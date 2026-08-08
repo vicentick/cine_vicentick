@@ -156,12 +156,16 @@ main{padding:10px 12px 0}
   border:1px solid rgba(255,255,255,.5); pointer-events:none;
 }
 
-/* ---------- visor de póster ampliado ---------- */
+/* ---------- visor de póster ampliado ----------
+   OJO: "display" va sólo en la regla [open]. Puesto en .lightbox a secas,
+   el diálogo (que por defecto ya es position:absolute vía el user-agent)
+   se queda cubriendo toda la pantalla y comiéndose los clics AUNQUE esté
+   cerrado, porque deja de aplicarse el "display:none" por defecto. */
 .lightbox{
   border:0; padding:0; margin:0; inset:0; width:100vw; height:100vh;
-  max-width:100vw; max-height:100vh; background:transparent;
-  display:flex; align-items:center; justify-content:center; cursor:zoom-out;
+  max-width:100vw; max-height:100vh; background:transparent; cursor:zoom-out;
 }
+.lightbox[open]{display:flex; align-items:center; justify-content:center}
 .lightbox::backdrop{background:rgba(0,0,0,.92)}
 .lightbox img{max-width:94vw; max-height:94vh; object-fit:contain; border-radius:8px}
 /* hueco para que el botón de cerrar no se coma el final del título */
