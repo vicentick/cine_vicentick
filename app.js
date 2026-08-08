@@ -228,10 +228,20 @@ function rellenar() {
 window.addEventListener('scroll', alScroll, { passive: true });
 window.addEventListener('resize', alScroll, { passive: true });
 
+/* Silueta genérica de "estatuilla", sin guardar las proporciones ni la
+   pose de ningún premio real (cabeza redonda, cuerpo troncocónico liso,
+   sin espada ni peana de carrete): sólo evoca "trofeo con figura". */
+const STATUETTE_SVG = `<svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+  <circle cx="12" cy="6" r="3" fill="#3b2a06"/>
+  <path d="M8.5 10c0-1 1-1.7 3.5-1.7s3.5.7 3.5 1.7l1 7c0 1-.8 1.6-1.8 1.6h-5.4c-1 0-1.8-.6-1.8-1.6z" fill="#3b2a06"/>
+  <rect x="6.5" y="18.6" width="11" height="2.2" rx="0.6" fill="#3b2a06"/>
+  <rect x="8" y="20.8" width="8" height="1.6" rx="0.5" fill="#3b2a06"/>
+</svg>`;
+
 /* Iconitos de premio: pequeños, no interactivos (pointer-events:none en CSS),
    sólo informativos encima del póster. */
 const AWARD_ICONS = [
-  ['oscarWin',  '🏆', 'Ganadora de un Oscar', 'badge-oscar'],
+  ['oscarWin',  STATUETTE_SVG, 'Ganadora de un Oscar', 'badge-oscar'],
   ['palmaOro',  '🌴', 'Palma de Oro (Cannes)', 'badge-palma'],
   ['cannesWin', '🎬', 'Premio del Festival de Cannes', 'badge-cannes'],
   ['globoOro',  '🌐', 'Globo de Oro', 'badge-globo'],
@@ -246,7 +256,8 @@ function awardBadges(w) {
   for (const [, icon, label, cls] of active) {
     const b = document.createElement('span');
     b.className = `badge ${cls}`;
-    b.textContent = icon;
+    if (icon.startsWith('<svg')) b.innerHTML = icon;
+    else b.textContent = icon;
     b.title = label;
     wrap.appendChild(b);
   }

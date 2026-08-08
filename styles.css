@@ -95,15 +95,9 @@ main{padding:10px 12px 0}
 .card p{margin:2px 2px 0; font-size:.72rem; color:var(--fg-faint)}
 
 /* marco de premio Oscar: dorado para ganadoras, plateado para finalistas.
-   Grosor 4px + halo (glow) amplio para que se note incluso en miniatura. */
-.card.frame-gold img, .card.frame-gold .ph{
-  border:4px solid #ffd447;
-  box-shadow:0 0 0 1px rgba(255,212,71,.5), 0 0 16px 2px rgba(255,212,71,.55);
-}
-.card.frame-silver img, .card.frame-silver .ph{
-  border:4px solid #e2e4ea;
-  box-shadow:0 0 0 1px rgba(226,228,234,.45), 0 0 14px 2px rgba(226,228,234,.4);
-}
+   Sólo borde, sin halo difuminado. */
+.card.frame-gold img, .card.frame-gold .ph{border:4px solid #ffd447}
+.card.frame-silver img, .card.frame-silver .ph{border:4px solid #e2e4ea}
 
 /* iconitos de premio, sólo informativos */
 .badges{
