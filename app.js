@@ -26,8 +26,12 @@ const IMG_BASE_XL = 'https://image.tmdb.org/t/p/w780';
 const posterURL = (path) => IMG_BASE + path;
 
 function openLightbox(path, alt) {
-  lightboxImg.src = IMG_BASE_XL + path;
+  // el <img> del visor se reutiliza entre pósters: si no se limpia antes,
+  // sigue enseñando el póster anterior los primeros instantes mientras
+  // carga el nuevo.
+  lightboxImg.removeAttribute('src');
   lightboxImg.alt = alt;
+  lightboxImg.src = IMG_BASE_XL + path;
   lightbox.showModal();
 }
 lightbox.addEventListener('click', () => lightbox.close());
