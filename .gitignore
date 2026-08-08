@@ -1,3 +1,11 @@
+# basura del sistema
 Thumbs.db
 desktop.ini
 .DS_Store
+
+# NUNCA subir la clave de TMDb ni el cache de generacion.
+# Hoy viven fuera de esta carpeta; esto es por si algun dia se mueven.
+tmdb_key.txt
+*.key
+_cache/
+posters/
