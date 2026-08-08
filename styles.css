@@ -128,7 +128,7 @@ main{padding:10px 12px 0}
 
 /* ---------- ficha ---------- */
 .sheet{
-  border:0; padding:0; width:min(560px,92%); max-height:85vh;
+  border:0; padding:0; width:min(680px,94%); max-height:85vh;
   background:var(--bg-elev); color:var(--fg);
   border-radius:18px; margin:auto;
   overflow:auto; position:fixed; inset:0;
@@ -142,10 +142,28 @@ main{padding:10px 12px 0}
 }
 .sheet-inner{padding:18px 18px calc(24px + var(--safe-b))}
 .sheet-hero{display:flex; gap:14px; margin-bottom:14px}
-.sheet-hero img{
-  width:104px; flex:0 0 104px; aspect-ratio:2/3; object-fit:cover;
+.poster-zoom{
+  position:relative; flex:0 0 104px; width:104px; padding:0; margin:0;
+  border:0; background:none; cursor:zoom-in;
+}
+.poster-zoom img{
+  width:100%; aspect-ratio:2/3; object-fit:cover; display:block;
   border-radius:10px; border:1px solid var(--line);
 }
+.zoom-hint{
+  position:absolute; right:5px; bottom:5px; font-size:.72rem; line-height:1;
+  padding:4px 5px; border-radius:7px; background:rgba(10,11,15,.65);
+  border:1px solid rgba(255,255,255,.5); pointer-events:none;
+}
+
+/* ---------- visor de póster ampliado ---------- */
+.lightbox{
+  border:0; padding:0; margin:0; inset:0; width:100vw; height:100vh;
+  max-width:100vw; max-height:100vh; background:transparent;
+  display:flex; align-items:center; justify-content:center; cursor:zoom-out;
+}
+.lightbox::backdrop{background:rgba(0,0,0,.92)}
+.lightbox img{max-width:94vw; max-height:94vh; object-fit:contain; border-radius:8px}
 /* hueco para que el botón de cerrar no se coma el final del título */
 .sheet-hero h2{margin:0 0 4px; padding-right:40px; font-size:1.1rem; line-height:1.25}
 .sheet-hero .meta{margin:0; color:var(--fg-dim); font-size:.85rem}
@@ -165,8 +183,8 @@ dd.premios{color:var(--accent)}
 /* ---------- filmografía de director ---------- */
 .director-title{margin:0 40px 2px 0; font-size:1.1rem; line-height:1.25}
 .director-grid{
-  display:grid; gap:10px; margin-top:14px;
-  grid-template-columns:repeat(auto-fill,minmax(96px,1fr));
+  display:grid; gap:12px; margin-top:14px;
+  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
 }
 .director-item{
   background:none; border:0; padding:0; margin:0;
@@ -178,12 +196,12 @@ dd.premios{color:var(--accent)}
   border-radius:10px; background:var(--bg-elev2);
   border:1px solid var(--line); display:block;
 }
-.director-item .ph{display:grid; place-items:center; color:var(--fg-faint); font-size:.68rem}
+.director-item .ph{display:grid; place-items:center; color:var(--fg-faint); font-size:.75rem}
 .director-item h4{
-  margin:5px 1px 0; font-size:.74rem; font-weight:600; line-height:1.2;
+  margin:7px 2px 0; font-size:.82rem; font-weight:600; line-height:1.25;
   display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
 }
-.director-item p{margin:1px 1px 0; font-size:.68rem; color:var(--fg-faint)}
+.director-item p{margin:2px 2px 0; font-size:.72rem; color:var(--fg-faint)}
 
 /* ---------- pie ---------- */
 .foot{padding:22px 14px calc(28px + var(--safe-b)); text-align:center}
@@ -198,34 +216,38 @@ dd.premios{color:var(--accent)}
 .tmdb-logo{width:130px; height:auto; opacity:.85}
 
 /* ---------- pantalla de inicio ---------- */
-.home-body{display:flex; flex-direction:column; min-height:100dvh}
-.home-wrap{
-  flex:1; display:flex; flex-direction:column; justify-content:center; gap:16px;
-  max-width:640px; width:100%; margin:0 auto; padding:24px 16px;
-}
+.home-body{display:flex; flex-direction:column; height:100dvh; overflow:hidden}
 .home-title{
-  text-align:center; margin:0 0 8px; font-size:1.4rem; font-weight:700; letter-spacing:.2px;
+  flex:0 0 auto; text-align:center;
+  margin:0; padding:calc(env(safe-area-inset-top,0px) + 16px) 16px 10px;
+  font-size:1.25rem; font-weight:700; letter-spacing:.2px;
+}
+.home-wrap{
+  flex:1; min-height:0; display:flex; flex-direction:column; gap:12px;
+  max-width:900px; width:100%; margin:0 auto;
+  padding:0 12px calc(12px + var(--safe-b));
 }
 .home-tile{
-  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; gap:8px;
   background:var(--bg-elev); border:1px solid var(--line); border-radius:var(--radius);
   color:inherit; text-decoration:none; text-align:center;
-  padding:28px 16px; cursor:pointer; transition:background .12s ease, transform .08s ease;
+  padding:16px; cursor:pointer; transition:background .12s ease, transform .08s ease;
 }
 .home-tile:active{background:var(--bg-elev2); transform:scale(.98)}
 .home-tile-main{
-  padding:34px 16px;
+  flex:1 1 55%; min-height:0;
   background:linear-gradient(160deg, var(--bg-elev2), var(--bg-elev));
   border-color:var(--accent-dim);
 }
-.home-tile-icon{font-size:2rem; line-height:1}
+.home-tile-icon{font-size:2.6rem; line-height:1}
 .home-tile-label{
-  font-size:1.05rem; font-weight:700; letter-spacing:.4px; color:var(--accent);
+  font-size:1.2rem; font-weight:700; letter-spacing:.4px; color:var(--accent);
 }
-.home-tile-main .home-tile-label{font-size:1.15rem}
-.home-tile-sub{font-size:.78rem; color:var(--fg-faint)}
-.home-row{display:grid; grid-template-columns:1fr 1fr; gap:14px}
-.home-foot{padding:12px 14px calc(16px + var(--safe-b))}
+.home-tile-main .home-tile-label{font-size:1.4rem}
+.home-tile-sub{font-size:.85rem; color:var(--fg-faint)}
+.home-row{flex:1 1 45%; min-height:0; display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.home-row .home-tile{height:100%}
+.home-foot{padding:10px 14px calc(14px + var(--safe-b))}
 .attrib-mini{margin:0; font-size:.66rem; color:var(--fg-faint)}
 
 /* ---------- páginas de exploración (corrientes / directores) ---------- */

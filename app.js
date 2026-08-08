@@ -14,12 +14,23 @@ const countEl    = $('#count');
 const emptyEl    = $('#empty');
 const sheet      = $('#sheet');
 const sheetBody  = $('#sheet-body');
+const lightbox   = $('#lightbox');
+const lightboxImg = $('#lightbox-img');
 
 /* Los pósters se piden al CDN de TMDb, no viajan dentro de la app: así no se
    rehospeda material ajeno. w342 basta para las tarjetas (170 px) y para la
-   ficha (104 px) incluso en pantallas de alta densidad. */
-const IMG_BASE = 'https://image.tmdb.org/t/p/w342';
+   ficha (104 px) incluso en pantallas de alta densidad; w780 se pide sólo
+   al ampliar el póster en el visor de pantalla completa. */
+const IMG_BASE   = 'https://image.tmdb.org/t/p/w342';
+const IMG_BASE_XL = 'https://image.tmdb.org/t/p/w780';
 const posterURL = (path) => IMG_BASE + path;
+
+function openLightbox(path, alt) {
+  lightboxImg.src = IMG_BASE_XL + path;
+  lightboxImg.alt = alt;
+  lightbox.showModal();
+}
+lightbox.addEventListener('click', () => lightbox.close());
 
 let WORKS = [];
 let SECTIONS = {};
@@ -382,11 +393,21 @@ function openSheet(w) {
   const hero = document.createElement('div');
   hero.className = 'sheet-hero';
   if (w.img) {
+    const posterBtn = document.createElement('button');
+    posterBtn.type = 'button';
+    posterBtn.className = 'poster-zoom';
+    posterBtn.setAttribute('aria-label', `Ampliar póster de ${w.t}`);
     const im = document.createElement('img');
     im.crossOrigin = 'anonymous';
     im.src = posterURL(w.img);
     im.alt = `Póster de ${w.t}`;
-    hero.appendChild(im);
+    posterBtn.appendChild(im);
+    const hint = document.createElement('span');
+    hint.className = 'zoom-hint';
+    hint.textContent = '🔍';
+    posterBtn.appendChild(hint);
+    posterBtn.addEventListener('click', () => openLightbox(w.img, im.alt));
+    hero.appendChild(posterBtn);
   }
   const head = document.createElement('div');
   const h2 = document.createElement('h2');

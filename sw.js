@@ -1,7 +1,7 @@
 /* Service worker: el armazón y los datos se precargan; los pósters se
    cachean según se van viendo (o de golpe con el botón de la app). */
 
-const SHELL_CACHE  = 'cine-shell-v8';
+const SHELL_CACHE  = 'cine-shell-v9';
 const POSTER_CACHE = 'cine-posters-v2';
 
 const SHELL = [
