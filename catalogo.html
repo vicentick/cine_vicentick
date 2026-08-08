@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Super DB de Cine</title>
+<meta name="description" content="Catálogo personal de cine: películas, animación, series y documentales.">
+<meta name="theme-color" content="#0e0f13">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Cine">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="topbar-row">
+    <a href="index.html" class="icon-btn" title="Inicio" aria-label="Volver al inicio">🏠</a>
+    <h1>Super DB de Cine</h1>
+    <button id="btn-random" class="icon-btn" title="Sorpréndeme" aria-label="Obra al azar">🎲</button>
+  </div>
+  <div class="search-wrap">
+    <input id="search" type="search" placeholder="Buscar título, director, reparto…"
+           autocomplete="off" autocapitalize="off" spellcheck="false" aria-label="Buscar">
+    <button id="btn-clear" class="clear-btn" hidden aria-label="Limpiar búsqueda">×</button>
+  </div>
+  <nav class="chips" id="chips-section" aria-label="Filtrar por tipo"></nav>
+  <div class="row-controls">
+    <select id="filter-decade" aria-label="Filtrar por década"></select>
+    <select id="sort" aria-label="Ordenar">
+      <option value="year-asc">Año ↑</option>
+      <option value="year-desc">Año ↓</option>
+      <option value="title">Título A-Z</option>
+      <option value="director">Director A-Z</option>
+      <option value="imdb-desc">Puntuación IMDB ↓</option>
+    </select>
+  </div>
+  <div class="row-controls">
+    <select id="filter-movement" aria-label="Filtrar por corriente artística"></select>
+    <select id="filter-genre" aria-label="Filtrar por género"></select>
+  </div>
+  <p class="count" id="count" role="status"></p>
+</header>
+
+<main>
+  <div id="grid" class="grid"></div>
+  <p id="empty" class="empty" hidden>Nada coincide con esa búsqueda.</p>
+</main>
+
+<footer class="foot">
+  <button id="btn-offline" class="ghost-btn">Descargar todo para usar sin conexión</button>
+  <p id="offline-status" class="offline-status"></p>
+  <!-- Atribución exigida por las condiciones de la API de TMDB: su logo más
+       la frase literal. El texto en inglés va tal cual lo especifican. -->
+  <div class="attrib">
+    <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">
+      <img src="icons/tmdb.svg" alt="The Movie Database (TMDB)" class="tmdb-logo" width="130" height="17">
+    </a>
+    <p lang="en">
+      This application uses TMDB and the TMDB APIs but is not endorsed,
+      certified, or otherwise approved by TMDB.
+    </p>
+    <p>
+      Los pósters se muestran desde TMDB. Catálogo personal, sin ánimo de lucro.
+    </p>
+  </div>
+</footer>
+
+<dialog id="sheet" class="sheet" aria-label="Ficha de la obra">
+  <button id="sheet-close" class="sheet-close" aria-label="Cerrar">×</button>
+  <div id="sheet-body"></div>
+</dialog>
+
+<script src="app.js"></script>
+</body>
+</html>

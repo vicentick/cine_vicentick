@@ -73,7 +73,30 @@ async function init() {
   buildGenres();
   buildMovements();
   bind();
+  applyDeepLink();
   render();
+}
+
+/* Enlaces desde corrientes.html (?corriente=) y directores.html (?director=):
+   preseleccionan el filtro o abren directamente la ficha de filmografía. */
+function applyDeepLink() {
+  const params = new URLSearchParams(location.search);
+  const corriente = params.get('corriente');
+  const director = params.get('director');
+
+  if (corriente) {
+    state.section = 'ALL';
+    chipsEl.querySelectorAll('.chip[data-key]').forEach((c) =>
+      c.setAttribute('aria-pressed', String(c.dataset.key === 'ALL')));
+    buildMovements();
+    if (WORKS.some((w) => w.m === corriente)) {
+      state.movement = corriente;
+      movementEl.value = corriente;
+    }
+  }
+  if (director && WORKS.some((w) => w.d === director)) {
+    openDirectorSheet(director);
+  }
 }
 
 function buildChips() {

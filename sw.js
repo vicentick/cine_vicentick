@@ -1,15 +1,20 @@
 /* Service worker: el armazón y los datos se precargan; los pósters se
    cachean según se van viendo (o de golpe con el botón de la app). */
 
-const SHELL_CACHE  = 'cine-shell-v7';
+const SHELL_CACHE  = 'cine-shell-v8';
 const POSTER_CACHE = 'cine-posters-v2';
 
 const SHELL = [
   './',
   'index.html',
+  'catalogo.html',
+  'corrientes.html',
+  'directores.html',
   'styles.css',
   'app.js',
+  'browse.js',
   'data.json',
+  'directors.json',
   'manifest.json',
   'icons/icon-192.png',
   'icons/icon-512.png',
