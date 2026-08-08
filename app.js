@@ -77,7 +77,7 @@ async function init() {
 }
 
 function buildChips() {
-  const opts = [['ALL', 'Todo'], ...Object.entries(SECTIONS)];
+  const opts = [...Object.entries(SECTIONS), ['ALL', 'Todo']];
   chipsEl.innerHTML = '';
   for (const [key, label] of opts) {
     const b = document.createElement('button');
@@ -231,10 +231,10 @@ window.addEventListener('resize', alScroll, { passive: true });
 /* Iconitos de premio: pequeños, no interactivos (pointer-events:none en CSS),
    sólo informativos encima del póster. */
 const AWARD_ICONS = [
-  ['oscarWin',  '🏆', 'Ganadora de un Oscar'],
-  ['palmaOro',  '🌴', 'Palma de Oro (Cannes)'],
-  ['cannesWin', '🎬', 'Premio del Festival de Cannes'],
-  ['globoOro',  '🌐', 'Globo de Oro'],
+  ['oscarWin',  '🏆', 'Ganadora de un Oscar', 'badge-oscar'],
+  ['palmaOro',  '🌴', 'Palma de Oro (Cannes)', 'badge-palma'],
+  ['cannesWin', '🎬', 'Premio del Festival de Cannes', 'badge-cannes'],
+  ['globoOro',  '🌐', 'Globo de Oro', 'badge-globo'],
 ];
 
 function awardBadges(w) {
@@ -243,9 +243,9 @@ function awardBadges(w) {
   if (!active.length) return null;
   const wrap = document.createElement('div');
   wrap.className = 'badges';
-  for (const [, icon, label] of active) {
+  for (const [, icon, label, cls] of active) {
     const b = document.createElement('span');
-    b.className = 'badge';
+    b.className = `badge ${cls}`;
     b.textContent = icon;
     b.title = label;
     wrap.appendChild(b);
@@ -368,6 +368,14 @@ function openSheet(w) {
   head.append(h2, meta, tag);
   hero.appendChild(head);
 
+  const parts = [hero];
+  if (w.ov) {
+    const syn = document.createElement('p');
+    syn.className = 'synopsis';
+    syn.textContent = w.ov;
+    parts.push(syn);
+  }
+
   const dl = document.createElement('dl');
   for (const [k, v] of rows) {
     const dt = document.createElement('dt'); dt.textContent = k;
@@ -380,7 +388,8 @@ function openSheet(w) {
     dl.append(dt, dd);
   }
 
-  inner.append(hero, dl);
+  parts.push(dl);
+  inner.append(...parts);
   sheetBody.replaceChildren(inner);
   if (!sheet.open) sheet.showModal();
 }
