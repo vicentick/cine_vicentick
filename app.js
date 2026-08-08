@@ -23,7 +23,7 @@ const posterURL = (path) => IMG_BASE + path;
 
 let WORKS = [];
 let SECTIONS = {};
-const state = { q: '', section: 'ALL', decade: 'ALL', movement: 'ALL', genre: 'ALL', sort: 'year-asc' };
+const state = { q: '', section: 'PELICULAS', decade: 'ALL', movement: 'ALL', genre: 'ALL', sort: 'year-asc' };
 
 /* Búsqueda insensible a acentos y mayúsculas. */
 const norm = (s) => (s || '')

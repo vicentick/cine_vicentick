@@ -61,9 +61,10 @@ h1{
 
 .row-controls{display:flex; gap:6px; margin-top:8px}
 .row-controls select{
-  flex:1; padding:7px 8px; font-size:.85rem;
+  flex:1; min-width:0; padding:7px 8px; font-size:.85rem;
   background:var(--bg-elev); color:var(--fg);
   border:1px solid var(--line); border-radius:9px;
+  text-overflow:ellipsis;
 }
 .count{margin:7px 2px 2px; font-size:.75rem; color:var(--fg-faint)}
 
