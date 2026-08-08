@@ -261,6 +261,21 @@ function openSheet(w) {
 /* ---------------- offline ---------------- */
 const POSTER_CACHE = 'cine-posters-v2';
 
+/* Las condiciones de la API de TMDB prohíben conservar su contenido más de
+   6 meses. Se anota cuándo se llenó la caché y se vacía al caducar; las
+   imágenes se vuelven a pedir solas la próxima vez que hagan falta. */
+const CADUCIDAD_MS = 150 * 24 * 60 * 60 * 1000;   // 150 días, con margen
+const SELLO = 'cine-posters-fecha';
+
+async function purgarSiCaduco() {
+  if (!('caches' in window)) return;
+  const sello = Number(localStorage.getItem(SELLO) || 0);
+  if (!sello) return;
+  if (Date.now() - sello < CADUCIDAD_MS) return;
+  await caches.delete(POSTER_CACHE);
+  localStorage.removeItem(SELLO);
+}
+
 async function downloadAll(btn, status) {
   if (!('caches' in window)) {
     status.textContent = 'Este navegador no permite guardar sin conexión.';
@@ -299,6 +314,7 @@ async function downloadAll(btn, status) {
   };
   await Promise.all(Array.from({ length: 6 }, worker));
 
+  localStorage.setItem(SELLO, String(Date.now()));
   status.textContent = failed
     ? `Listo con ${failed} fallos. Vuelve a pulsar para reintentar.`
     : 'Listo: la app funciona entera sin conexión.';
@@ -313,6 +329,8 @@ if ('serviceWorker' in navigator) {
   window.addEventListener('load', () =>
     navigator.serviceWorker.register('sw.js').catch(() => {}));
 }
+
+purgarSiCaduco().catch(() => {});
 
 init().catch((err) => {
   countEl.textContent = 'No se pudieron cargar los datos.';

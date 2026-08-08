@@ -137,5 +137,7 @@ dd.premios{color:var(--accent)}
 .ghost-btn:disabled{opacity:.5; cursor:default}
 .offline-status{margin:8px 0 0; font-size:.75rem; color:var(--fg-dim); min-height:1em}
 .attrib{margin:18px auto 0; max-width:34em; font-size:.68rem; color:var(--fg-faint); line-height:1.5}
+.attrib p{margin:8px 0 0}
+.tmdb-logo{width:130px; height:auto; opacity:.85}
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}

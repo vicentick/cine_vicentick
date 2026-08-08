@@ -46,10 +46,20 @@
 <footer class="foot">
   <button id="btn-offline" class="ghost-btn">Descargar todo para usar sin conexión</button>
   <p id="offline-status" class="offline-status"></p>
-  <p class="attrib">
-    Este producto usa la API de TMDB pero no está avalado ni certificado por TMDB.
-    Datos y pósters © sus respectivos autores. Uso personal.
-  </p>
+  <!-- Atribución exigida por las condiciones de la API de TMDB: su logo más
+       la frase literal. El texto en inglés va tal cual lo especifican. -->
+  <div class="attrib">
+    <a href="https://www.themoviedb.org/" target="_blank" rel="noopener noreferrer">
+      <img src="icons/tmdb.svg" alt="The Movie Database (TMDB)" class="tmdb-logo" width="130" height="17">
+    </a>
+    <p lang="en">
+      This application uses TMDB and the TMDB APIs but is not endorsed,
+      certified, or otherwise approved by TMDB.
+    </p>
+    <p>
+      Los pósters se muestran desde TMDB. Catálogo personal, sin ánimo de lucro.
+    </p>
+  </div>
 </footer>
 
 <dialog id="sheet" class="sheet" aria-label="Ficha de la obra">
