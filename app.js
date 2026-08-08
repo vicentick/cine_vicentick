@@ -386,8 +386,6 @@ function makeCard(w) {
 
   const badges = awardBadges(w);
   if (badges) card.appendChild(badges);
-  const providers = providerIcons(w);
-  if (providers) card.appendChild(providers);
 
   const h = document.createElement('h3');
   h.textContent = w.t;
