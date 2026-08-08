@@ -109,7 +109,10 @@ main{padding:10px 12px 0}
 }
 
 /* nombre del director, clicable dentro de tarjeta y ficha */
-.dir-link{cursor:pointer; text-decoration:underline; text-decoration-color:transparent; transition:text-decoration-color .12s ease}
+.dir-link{
+  cursor:pointer; font-weight:700; color:var(--fg);
+  text-decoration:underline; text-decoration-color:transparent; transition:text-decoration-color .12s ease;
+}
 .dir-link:hover, .dir-link:focus{text-decoration-color:currentColor}
 
 .empty{text-align:center; color:var(--fg-faint); padding:40px 20px}

@@ -23,7 +23,7 @@ const posterURL = (path) => IMG_BASE + path;
 
 let WORKS = [];
 let SECTIONS = {};
-const state = { q: '', section: 'PELICULAS', decade: 'ALL', movement: 'ALL', genre: 'ALL', sort: 'year-asc' };
+const state = { q: '', section: 'PELICULAS', decade: 'ALL', movement: 'ALL', genre: 'ALL', award: 'ALL', sort: 'year-asc' };
 
 /* Búsqueda insensible a acentos y mayúsculas. */
 const norm = (s) => (s || '')
@@ -44,18 +44,29 @@ function parseAwards(p) {
   return { oscarWin, oscarNom, palmaOro, cannesWin, globoOro };
 }
 
+/* Nota de IMDB dentro de "sc" ("FA –/IMDB 8.0/RT –"); null si no hay dato. */
+function parseImdb(sc) {
+  const m = /IMDB\s+([\d.]+)/i.exec(sc || '');
+  return m ? parseFloat(m[1]) : null;
+}
+
 /* ---------------- carga ---------------- */
 async function init() {
   const res = await fetch('data.json');
   const data = await res.json();
   SECTIONS = data.sections;
-  WORKS = data.works.map((w) => ({
-    ...w,
-    _hay: norm([w.t, w.d, w.c, w.g, w.m, w.y].join(' ')),
-    _t: norm(w.t),
-    _d: norm(w.d),
-    _aw: parseAwards(w.p),
-  }));
+  WORKS = data.works.map((w) => {
+    const aw = parseAwards(w.p);
+    return {
+      ...w,
+      _hay: norm([w.t, w.d, w.c, w.g, w.m, w.y].join(' ')),
+      _t: norm(w.t),
+      _d: norm(w.d),
+      _aw: aw,
+      _hasAward: aw.oscarWin || aw.oscarNom || aw.palmaOro || aw.cannesWin || aw.globoOro,
+      _imdb: parseImdb(w.sc),
+    };
+  });
 
   buildChips();
   buildDecades();
@@ -71,17 +82,34 @@ function buildChips() {
   for (const [key, label] of opts) {
     const b = document.createElement('button');
     b.className = 'chip';
+    b.type = 'button';
     b.textContent = label;
     b.dataset.key = key;
     b.setAttribute('aria-pressed', String(key === state.section));
     b.addEventListener('click', () => {
       state.section = key;
-      chipsEl.querySelectorAll('.chip').forEach((c) =>
+      chipsEl.querySelectorAll('.chip[data-key]').forEach((c) =>
         c.setAttribute('aria-pressed', String(c.dataset.key === key)));
+      buildMovements();
       render();
     });
     chipsEl.appendChild(b);
   }
+
+  const AWARD_LABELS = { ALL: '🏆 Premios', YES: '🏆 Premiadas', NO: '🏆 No premiadas' };
+  const AWARD_NEXT = { ALL: 'YES', YES: 'NO', NO: 'ALL' };
+  const awardBtn = document.createElement('button');
+  awardBtn.className = 'chip chip-award';
+  awardBtn.type = 'button';
+  awardBtn.textContent = AWARD_LABELS[state.award];
+  awardBtn.setAttribute('aria-pressed', String(state.award !== 'ALL'));
+  awardBtn.addEventListener('click', () => {
+    state.award = AWARD_NEXT[state.award];
+    awardBtn.textContent = AWARD_LABELS[state.award];
+    awardBtn.setAttribute('aria-pressed', String(state.award !== 'ALL'));
+    render();
+  });
+  chipsEl.appendChild(awardBtn);
 }
 
 function buildDecades() {
@@ -90,10 +118,14 @@ function buildDecades() {
     decs.map((d) => `<option value="${d}">${d}</option>`).join('');
 }
 
-/* Las corrientes dependen de la década elegida: sin década, todas las que
-   haya en el catálogo; con una elegida, sólo las que aparecen en esa década. */
+/* Las corrientes dependen de la década y de la sección elegidas: sin
+   filtrar ninguna, todas las que haya en el catálogo; filtrando, sólo las
+   que aparecen entre las obras que cumplen esos filtros (así no salen
+   corrientes de documentales al filtrar por películas, y viceversa). */
 function buildMovements() {
-  const pool = state.decade === 'ALL' ? WORKS : WORKS.filter((w) => w.dec === state.decade);
+  const pool = WORKS.filter((w) =>
+    (state.decade === 'ALL' || w.dec === state.decade) &&
+    (state.section === 'ALL' || w.s === state.section));
   const movs = [...new Set(pool.map((w) => w.m).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
   const prev = state.movement;
   movementEl.innerHTML = '<option value="ALL">Todas las corrientes</option>' +
@@ -140,12 +172,13 @@ function bind() {
 
 /* ---------------- filtrado ---------------- */
 function filtered() {
-  const { q, section, decade, movement, genre, sort } = state;
+  const { q, section, decade, movement, genre, award, sort } = state;
   let out = WORKS.filter((w) =>
     (section === 'ALL' || w.s === section) &&
     (decade === 'ALL' || w.dec === decade) &&
     (movement === 'ALL' || w.m === movement) &&
     (genre === 'ALL' || w.g === genre) &&
+    (award === 'ALL' || (award === 'YES' ? w._hasAward : !w._hasAward)) &&
     (!q || w._hay.includes(q)));
 
   const by = {
@@ -153,6 +186,7 @@ function filtered() {
     'year-desc': (a, b) => b.y - a.y || a._t.localeCompare(b._t),
     'title':     (a, b) => a._t.localeCompare(b._t),
     'director':  (a, b) => a._d.localeCompare(b._d) || a.y - b.y,
+    'imdb-desc': (a, b) => (b._imdb ?? -1) - (a._imdb ?? -1) || a._t.localeCompare(b._t),
   }[sort];
   return out.sort(by);
 }
