@@ -205,6 +205,9 @@ async function initCorrientes() {
       `catalogo.html?corriente=${encodeURIComponent(name)}&decada=${encodeURIComponent(decada)}`));
 }
 
+const norm = (s) => (s || '')
+  .normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+
 async function initDirectores() {
   const wrap = document.getElementById('browse-wrap');
   const decada = new URLSearchParams(location.search).get('decada');
@@ -218,16 +221,45 @@ async function initDirectores() {
   const decadeOrder = decadeOrderOf(works);
   const entries = earliestByKey(works, 'd');
 
-  if (!decada) {
-    renderDecadeTiles(wrap, decadeOrder, countByDecade(entries, decadeOrder), 'directores.html',
-      { one: 'director', many: 'directores' });
-    return;
+  const makeItem = ({ name, work }) =>
+    personItem(name, work, `catalogo.html?director=${encodeURIComponent(name)}`, photos[name]);
+
+  function showDecadeView() {
+    if (!decada) {
+      renderDecadeTiles(wrap, decadeOrder, countByDecade(entries, decadeOrder), 'directores.html',
+        { one: 'director', many: 'directores' });
+      return;
+    }
+    const items = [...entries].filter(([, w]) => w.dec === decada)
+      .sort((a, b) => a[0].localeCompare(b[0], 'es'))
+      .map(([name, work]) => ({ name, work }));
+    renderFlatGrid(wrap, items, makeItem);
   }
-  const items = [...entries].filter(([, w]) => w.dec === decada)
-    .sort((a, b) => a[0].localeCompare(b[0], 'es'))
-    .map(([name, work]) => ({ name, work }));
-  renderFlatGrid(wrap, items, ({ name, work }) =>
-    personItem(name, work, `catalogo.html?director=${encodeURIComponent(name)}`, photos[name]));
+
+  function showSearchResults(query) {
+    const q = norm(query);
+    const items = [...entries].filter(([name]) => norm(name).includes(q))
+      .sort((a, b) => a[0].localeCompare(b[0], 'es'))
+      .map(([name, work]) => ({ name, work }));
+    renderFlatGrid(wrap, items, makeItem);
+  }
+
+  showDecadeView();
+
+  const searchEl = document.getElementById('director-search');
+  const clearEl = document.getElementById('director-search-clear');
+  searchEl.addEventListener('input', () => {
+    const q = searchEl.value.trim();
+    clearEl.hidden = !q;
+    if (q) showSearchResults(q);
+    else showDecadeView();
+  });
+  clearEl.addEventListener('click', () => {
+    searchEl.value = '';
+    clearEl.hidden = true;
+    showDecadeView();
+    searchEl.focus();
+  });
 }
 
 if ('serviceWorker' in navigator) {

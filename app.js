@@ -94,6 +94,7 @@ async function init() {
   buildDecades();
   buildGenres();
   buildMovements();
+  updateAwardBtn();
   bind();
   applyDeepLink();
   render();
@@ -148,21 +149,15 @@ function buildChips() {
     });
     chipsEl.appendChild(b);
   }
+}
 
-  const AWARD_LABELS = { ALL: '🏆 Premios', YES: '🏆 Premiadas', NO: '🏆 No premiadas' };
-  const AWARD_NEXT = { ALL: 'YES', YES: 'NO', NO: 'ALL' };
-  const awardBtn = document.createElement('button');
-  awardBtn.className = 'chip chip-award';
-  awardBtn.type = 'button';
-  awardBtn.textContent = AWARD_LABELS[state.award];
-  awardBtn.setAttribute('aria-pressed', String(state.award !== 'ALL'));
-  awardBtn.addEventListener('click', () => {
-    state.award = AWARD_NEXT[state.award];
-    awardBtn.textContent = AWARD_LABELS[state.award];
-    awardBtn.setAttribute('aria-pressed', String(state.award !== 'ALL'));
-    render();
-  });
-  chipsEl.appendChild(awardBtn);
+const AWARD_LABELS = { ALL: 'Premios', YES: 'Premiadas', NO: 'No premiadas' };
+const AWARD_NEXT = { ALL: 'YES', YES: 'NO', NO: 'ALL' };
+function updateAwardBtn() {
+  const btn = $('#btn-award');
+  btn.title = AWARD_LABELS[state.award];
+  btn.setAttribute('aria-label', `Filtrar por premios: ${AWARD_LABELS[state.award]}`);
+  btn.setAttribute('aria-pressed', String(state.award !== 'ALL'));
 }
 
 function buildDecades() {
@@ -211,6 +206,12 @@ function bind() {
   movementEl.addEventListener('change', () => { state.movement = movementEl.value; render(); });
   genreEl.addEventListener('change', () => { state.genre = genreEl.value; render(); });
   sortEl.addEventListener('change', () => { state.sort = sortEl.value; render(); });
+
+  $('#btn-award').addEventListener('click', () => {
+    state.award = AWARD_NEXT[state.award];
+    updateAwardBtn();
+    render();
+  });
 
   $('#btn-random').addEventListener('click', () => {
     const pool = filtered();

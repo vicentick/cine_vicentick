@@ -34,6 +34,7 @@ h1{
   text-decoration:none; flex:0 0 auto;
 }
 .icon-btn:active{background:var(--bg-elev2)}
+.icon-btn[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:#1a1405}
 .logo-btn img{width:24px; height:24px; border-radius:6px; display:block}
 
 .search-wrap{position:relative; margin-top:8px}
