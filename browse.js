@@ -16,7 +16,9 @@ function decadeOrderOf(works) {
 }
 
 /* Para cada valor de la clave `key` ("m" o "d"), la obra más antigua que lo
-   lleva: de ahí sacamos en qué década "debuta" y qué póster representarlo. */
+   lleva: de ahí sacamos en qué década "debuta" y qué póster representarlo.
+   Sirve para Directores: tiene sentido agrupar a cada uno sólo por la
+   década en la que empezó. */
 function earliestByKey(works, key) {
   const first = new Map();
   for (const w of works) {
@@ -28,9 +30,34 @@ function earliestByKey(works, key) {
   return first;
 }
 
+/* Para Corrientes hace falta lo contrario: una corriente como "Blockbuster"
+   o "Cine de autor USA" dura décadas, y si sólo aparece como recuadro en
+   la primera en la que salió, se vuelve invisible en el resto aunque
+   tenga allí un montón de obras. Aquí se agrupa por década Y corriente a
+   la vez, así cada una aparece en todas las décadas donde tenga obras
+   (con el póster de la más antigua DENTRO de esa década concreta). */
+function byDecadeAndKey(works, key) {
+  const byDecade = new Map();
+  for (const w of works) {
+    const val = w[key];
+    if (!val) continue;
+    if (!byDecade.has(w.dec)) byDecade.set(w.dec, new Map());
+    const inner = byDecade.get(w.dec);
+    const cur = inner.get(val);
+    if (!cur || w.y < cur.y) inner.set(val, w);
+  }
+  return byDecade;
+}
+
 function countByDecade(entries, decadeOrder) {
   const counts = new Map(decadeOrder.map((d) => [d, 0]));
   for (const [, work] of entries) counts.set(work.dec, (counts.get(work.dec) || 0) + 1);
+  return counts;
+}
+
+function countByDecadeMap(byDecade, decadeOrder) {
+  const counts = new Map(decadeOrder.map((d) => [d, 0]));
+  for (const [dec, inner] of byDecade) counts.set(dec, inner.size);
   return counts;
 }
 
@@ -163,14 +190,14 @@ async function initCorrientes() {
   // las series no entran en "Corrientes": esto es sólo para cine
   const works = data.works.filter((w) => w.s !== 'SERIES');
   const decadeOrder = decadeOrderOf(works);
-  const entries = earliestByKey(works, 'm');
+  const byDecade = byDecadeAndKey(works, 'm');
 
   if (!decada) {
-    renderDecadeTiles(wrap, decadeOrder, countByDecade(entries, decadeOrder), 'corrientes.html',
+    renderDecadeTiles(wrap, decadeOrder, countByDecadeMap(byDecade, decadeOrder), 'corrientes.html',
       { one: 'corriente', many: 'corrientes' });
     return;
   }
-  const items = [...entries].filter(([, w]) => w.dec === decada)
+  const items = [...(byDecade.get(decada) || [])]
     .sort((a, b) => a[0].localeCompare(b[0], 'es'))
     .map(([name, work]) => ({ name, work }));
   renderFlatGrid(wrap, items, ({ name, work }) =>
