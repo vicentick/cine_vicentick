@@ -59,9 +59,11 @@ function parseAwards(p) {
   return { oscarWin, oscarNom, palmaOro, cannesWin, globoOro };
 }
 
-/* Nota de IMDB dentro de "sc" ("FA –/IMDB 8.0/RT –"); null si no hay dato. */
-function parseImdb(sc) {
-  const m = /IMDB\s+([\d.]+)/i.exec(sc || '');
+/* Nota de TMDB dentro de "sc" ("TMDB 8.0"); null si no hay dato.
+   IMDB/FilmAffinity/Rotten Tomatoes no tienen API pública gratuita, así
+   que no hay forma legítima de rellenarlas en bloque; TMDB sí. */
+function parseTmdbScore(sc) {
+  const m = /TMDB\s+([\d.]+)/i.exec(sc || '');
   return m ? parseFloat(m[1]) : null;
 }
 
@@ -84,7 +86,7 @@ async function init() {
       _d: norm(w.d),
       _aw: aw,
       _hasAward: aw.oscarWin || aw.oscarNom || aw.palmaOro || aw.cannesWin || aw.globoOro,
-      _imdb: parseImdb(w.sc),
+      _tmdbScore: parseTmdbScore(w.sc),
     };
   });
 
@@ -176,7 +178,7 @@ function buildDecades() {
 function buildMovements() {
   const pool = WORKS.filter((w) =>
     (state.decade === 'ALL' || w.dec === state.decade) &&
-    (state.section === 'ALL' || w.s === state.section));
+    (state.section === 'ALL' ? w.s !== 'SERIES' : w.s === state.section));
   const movs = [...new Set(pool.map((w) => w.m).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'es'));
   const prev = state.movement;
   movementEl.innerHTML = '<option value="ALL">Todas las corrientes</option>' +
@@ -237,7 +239,7 @@ function filtered() {
     'year-desc': (a, b) => b.y - a.y || a._t.localeCompare(b._t),
     'title':     (a, b) => a._t.localeCompare(b._t),
     'director':  (a, b) => a._d.localeCompare(b._d) || a.y - b.y,
-    'imdb-desc': (a, b) => (b._imdb ?? -1) - (a._imdb ?? -1) || a._t.localeCompare(b._t),
+    'tmdb-desc': (a, b) => (b._tmdbScore ?? -1) - (a._tmdbScore ?? -1) || a._t.localeCompare(b._t),
   }[sort];
   return out.sort(by);
 }

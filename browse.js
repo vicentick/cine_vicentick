@@ -160,7 +160,8 @@ async function initCorrientes() {
   setupTopbar(decada, 'corrientes.html', 'Corrientes');
 
   const data = await (await fetch('data.json')).json();
-  const works = data.works;
+  // las series no entran en "Corrientes": esto es sólo para cine
+  const works = data.works.filter((w) => w.s !== 'SERIES');
   const decadeOrder = decadeOrderOf(works);
   const entries = earliestByKey(works, 'm');
 
