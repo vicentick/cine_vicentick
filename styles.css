@@ -255,10 +255,10 @@ dd.premios{color:var(--accent)}
   padding:16px; cursor:pointer; transition:background .12s ease, transform .08s ease;
 }
 .home-tile:active{background:var(--bg-elev2); transform:scale(.98)}
+/* mismo fondo que el logo: sin borde de color entre uno y otro */
 .home-tile-main{
   flex:1 1 55%; min-height:0;
-  /* mismo fondo que el logo (#0e0f13): sin borde de color entre uno y otro */
-  background-color:var(--bg); background:var(--bg);
+  background-color:var(--bg);
   border-color:var(--accent-dim);
 }
 .home-tile-logo{
