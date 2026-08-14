@@ -56,7 +56,16 @@ function parseAwards(p) {
   const palmaOro  = /palma de oro/i.test(t);
   const cannesWin = /cannes/i.test(t) && !palmaOro;
   const globoOro  = /globo de oro/i.test(t);
-  return { oscarWin, oscarNom, palmaOro, cannesWin, globoOro };
+  // el resto de grandes festivales: sin esto, películas claramente
+  // premiadas (León de Oro, Oso de Oro, Sundance, BAFTA) se quedaban
+  // fuera del filtro "Premiadas" por no llevar la palabra "Oscar"
+  const leonOro   = /le[oó]n de oro/i.test(t);
+  const osoOro    = /oso de oro/i.test(t);
+  const bafta     = /bafta/i.test(t);
+  const sundance  = /sundance/i.test(t);
+  const europeo   = /premio del cine europeo/i.test(t);
+  return { oscarWin, oscarNom, palmaOro, cannesWin, globoOro,
+           leonOro, osoOro, bafta, sundance, europeo };
 }
 
 /* Nota de TMDB dentro de "sc" ("TMDB 8.0"); null si no hay dato.
@@ -85,7 +94,7 @@ async function init() {
       _t: norm(w.t),
       _d: norm(w.d),
       _aw: aw,
-      _hasAward: aw.oscarWin || aw.oscarNom || aw.palmaOro || aw.cannesWin || aw.globoOro,
+      _hasAward: Object.values(aw).some(Boolean),
       _tmdbScore: parseTmdbScore(w.sc),
     };
   });
@@ -299,6 +308,11 @@ const AWARD_ICONS = [
   ['palmaOro',  '🌴', 'Palma de Oro (Cannes)', 'badge-palma'],
   ['cannesWin', '🎬', 'Premio del Festival de Cannes', 'badge-cannes'],
   ['globoOro',  '🌐', 'Globo de Oro', 'badge-globo'],
+  ['leonOro',   '🦁', 'León de Oro (Venecia)', 'badge-leon'],
+  ['osoOro',    '🐻', 'Oso de Oro (Berlín)', 'badge-oso'],
+  ['bafta',     '🎭', 'Premio BAFTA', 'badge-bafta'],
+  ['sundance',  '⛰️', 'Premio en Sundance', 'badge-sundance'],
+  ['europeo',   '🇪🇺', 'Premio del Cine Europeo', 'badge-europeo'],
 ];
 
 function awardBadges(w) {
